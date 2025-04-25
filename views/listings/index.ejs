@@ -1,0 +1,211 @@
+<% layout("/layouts/boilerplate") %>
+<body>
+  <style>
+    #filters {
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 20px;
+      overflow-x: auto;
+      padding: 10px 20px;
+    }
+
+    .filter {
+      text-align: center;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 10px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .filter:hover {
+      background-color: #f0f0f0;
+      transform: translateY(-2px);
+    }
+
+    .filter i {
+      font-size: 20px;
+    }
+
+    /* GST visibility control */
+    .gst {
+      color: #555;
+      font-size: 14px;
+      display: none;
+    }
+
+    .price-with-gst .gst {
+      display: inline;
+    }
+
+    /* Toggle Switch Styling */
+    .toggle-wrapper {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-wrapper:hover {
+      background-color: #f0f0f0;
+      transform: translateY(-2px);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #007bff;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+      user-select: none;
+    }
+  </style>
+
+  <!-- Filters Row -->
+  <div id="filters">
+    <div class="filter" onclick="handleFilterClick('Trending')">
+      <i class="fa-solid fa-fire"></i><br />
+      <p>Trending</p>
+    </div>
+    <div class="filter" onclick="handleFilterClick('Rooms')">
+      <i class="fa-solid fa-bed"></i><br />
+      <p>Rooms</p>
+    </div>
+    <div class="filter" onclick="handleFilterClick('Iconic Cities')">
+      <i class="fa-solid fa-mountain-city"></i><br />
+      <p>Iconic Cities</p>
+    </div>
+    <div class="filter" onclick="handleFilterClick('Mountain')">
+      <i class="fa-solid fa-mountain"></i><br />
+      <p>Mountain</p>
+    </div>
+    <div class="filter" onclick="handleFilterClick('Castles')">
+      <i class="fa-brands fa-fort-awesome"></i><br />
+      <p>Castles</p>
+    </div>
+    <div class="filter" onclick="handleFilterClick('Amazing Pools')">
+      <i class="fa-solid fa-person-swimming"></i><br />
+      <p>Amazing Pools</p>
+    </div>
+    <div class="filter" onclick="handleFilterClick('Camping')">
+      <i class="fa-solid fa-campground"></i><br />
+      <p>Camping</p>
+    </div>
+    <div class="filter" onclick="handleFilterClick('Farms')">
+      <i class="fa-solid fa-cow"></i><br />
+      <p>Farms</p>
+    </div>
+    <div class="filter" onclick="handleFilterClick('Arctic')">
+      <i class="fa-regular fa-snowflake"></i><br />
+      <p>Arctic</p>
+    </div>
+    <br /><br /><br /><br />
+
+    <!-- Toggle Switch -->
+    <div class="filter toggle-wrapper">
+      <label class="switch">
+        <input type="checkbox" id="afterTaxCheckbox" />
+        <span class="slider round"></span>
+      </label>
+      <span class="toggle-label">Prices After Tax</span>
+    </div>
+  </div>
+
+  <!-- Listings -->
+  <div class="container">
+    <div class="row row-cols-1 row-cols-md-1 row-cols-lg-5 g-4">
+      <% for (let listing of allListings) { %>
+      <a href="listings/<%=listing._id%>" class="listing-link">
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <img
+              src="<%= listing.image.url || 'https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60' %>"
+              class="card-img-top"
+              alt="listing image"
+              style="height: 200px; object-fit: cover"
+            />
+            <div class="card-body">
+              <h5 class="card-title"><%= listing.title %></h5>
+              <p class="card-text text-muted price-text">
+                &#8377;<%= listing.price ? listing.price.toLocaleString("en-IN")
+                : "N/A" %> / night
+                <span class="gst"> + 18% GST</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </a>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+    function handleFilterClick(filterName) {
+      alert(`Filter clicked: ${filterName}`);
+    }
+
+    document
+      .getElementById("afterTaxCheckbox")
+      .addEventListener("change", function () {
+        const showGST = this.checked;
+        const priceTexts = document.querySelectorAll(".price-text");
+
+        priceTexts.forEach((price) => {
+          if (showGST) {
+            price.classList.add("price-with-gst");
+          } else {
+            price.classList.remove("price-with-gst");
+          }
+        });
+      });
+  </script>
+</body>

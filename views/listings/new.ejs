@@ -1,0 +1,78 @@
+<% layout("/layouts/boilerplate") %>
+<body class="bg-light py-3.8">
+  <div class="container">
+    <h3 class="text-center mb-4">Create a New Listing</h3>
+
+    <form
+      method="POST"
+      action="/listings"
+      class="p-4 bg-white shadow rounded-4 mx-auto"
+      style="max-width: 600px"
+      enctype="multipart/form-data"
+    >
+      <!-- enctype so that images can be uploaded not only binary data -->
+      <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input
+          name="listing[title]"
+          class="form-control"
+          placeholder="Enter title"
+          type="text"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea
+          name="listing[description]"
+          class="form-control"
+          placeholder="Enter description"
+          rows="4"
+          required
+        ></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Upload Listing Image </label>
+        <input name="listing[image]" class="form-control" type="file" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Price (₹)</label>
+        <input
+          name="listing[price]"
+          class="form-control"
+          placeholder="Enter price"
+          requires
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Country</label>
+        <input
+          name="listing[country]"
+          class="form-control"
+          placeholder="Enter country"
+          type="text"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Location</label>
+        <input
+          name="listing[location]"
+          class="form-control"
+          placeholder="Enter location"
+          type="text"
+          required
+        />
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary px-4">Add Listing</button>
+      </div>
+    </form>
+  </div>
+</body>

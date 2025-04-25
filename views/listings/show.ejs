@@ -1,0 +1,211 @@
+<% layout("/layouts/boilerplate") %>
+<body class="bg-light py-3.8">
+  <div class="container">
+    <!-- Listing Card -->
+    <div class="card mx-auto shadow rounded-4" style="max-width: 600px">
+      <div class="card-body">
+        <ul class="list-group list-group-flush mb-3">
+          <li class="list-group-item">
+            <b><h2><%= listing.title %></h2></b>
+          </li>
+
+          <!-- Listing Image -->
+          <div class="text-center mb-4">
+            <img
+              src="<%= listing.image.url || 'https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60' %>"
+              alt="Listing Image"
+              class="img-fluid rounded-4 shadow-sm"
+              style="width: 100%; height: 300px; object-fit: cover"
+            />
+          </div>
+          <li class="list-group-item">
+            <strong>Owner:</strong> <%= listing.owner.username %>
+          </li>
+          <li class="list-group-item">
+            <strong>Description:</strong> <%= listing.description %>
+          </li>
+          <li class="list-group-item">
+            <strong>Price:</strong> &#8377;<%= listing.price ?
+            listing.price.toLocaleString("en-IN") : "N/A" %> / night
+          </li>
+          <li class="list-group-item">
+            <strong>Location:</strong> <%= listing.location %>
+          </li>
+          <li class="list-group-item">
+            <strong>Country:</strong> <%= listing.country %>
+          </li>
+        </ul>
+        <%if(currentUser && listing.owner._id.equals(currentUser._id)){%>
+        <div class="d-flex justify-content-between">
+          <a href="/listings/<%= listing._id %>/edit" class="btn btn-primary"
+            >Edit</a
+          >
+          <form
+            method="POST"
+            action="/listings/<%= listing._id %>/delete?_method=delete"
+          >
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+        <%}%>
+      </div>
+    </div>
+
+    <!-- Review Section -->
+    <div
+      class="card mt-4 shadow rounded-4 border border-primary"
+      style="max-width: 600px; margin: 0 auto"
+    >
+      <div class="card-body bg-white">
+        <% if(currentUser){%>
+        <h4 class="card-title text-primary mb-3">Leave a Review</h4>
+
+        <!-- Fancy Alert -->
+        <div id="ratingAlert" class="alert alert-danger d-none" role="alert">
+          Ratings are required to submit your review . Comments are optional .
+          Thanks !
+        </div>
+
+        <form method="POST" action="/listings/<%= listing._id %>/reviews">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Rating</label>
+            <div class="star-rating">
+              <% for (let i = 5; i >= 1; i--) { %>
+              <input
+                type="radio"
+                name="review[rating]"
+                id="star<%= i %>"
+                value="<%= i %>"
+              />
+              <label for="star<%= i %>">&#9733;</label>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="comment" class="form-label fw-bold">Comments</label>
+            <textarea
+              class="form-control"
+              name="review[comment]"
+              id="comment"
+              rows="4"
+              placeholder="Share your thoughts..."
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-success">Submit Review</button>
+        </form>
+      </div>
+    </div>
+    <%}%>
+    <!-- Reviews Display Section -->
+    <div
+      class="card mt-4 shadow rounded-4 border border-secondary"
+      style="max-width: 1000px; margin: 0 auto"
+    >
+      <div class="card-body bg-light">
+        <h4 class="card-title text-secondary mb-4">All Reviews</h4>
+        <% if (listing.reviews.length === 0) { %>
+        <p class="text-muted">No reviews yet. Be the first to leave one!</p>
+        <% } else { %>
+        <div class="row">
+          <% listing.reviews.forEach((review) => { %>
+          <div class="col-md-6 mb-4">
+            <div
+              class="p-3 border rounded-3 bg-white shadow-sm h-100 d-flex flex-column justify-content-between"
+            >
+              <div>
+                <h3>@<%= review.author.username%></h3>
+                <div class="d-flex align-items-center mb-2">
+                  <div class="me-2">
+                    <% for (let i = 1; i <= 5; i++) { %>
+                    <i
+                      class="fa<%= i <= review.rating ? 's' : 'r' %> fa-star text-warning"
+                    ></i>
+                    <% } %>
+                  </div>
+                  <span class="text-muted small"
+                    ><%= review.rating %> out of 5</span
+                  >
+                </div>
+
+                <% if (review.comment && review.comment.trim().length > 0) { %>
+                <p class="mb-2"><%= review.comment %></p>
+                <% } else { %>
+                <p class="mb-2 text-muted fst-italic">No comment provided.</p>
+                <% } %>
+              </div>
+
+              <form
+                method="POST"
+                action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-outline-danger mt-2"
+                >
+                  Delete
+                </button>
+              </form>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Star Rating Styles -->
+    <style>
+      .star-rating {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        justify-content: flex-start;
+      }
+
+      .star-rating input[type="radio"] {
+        display: none;
+      }
+
+      .star-rating label {
+        font-size: 2rem;
+        color: #ccc;
+        cursor: pointer;
+        transition: color 0.2s ease-in-out;
+      }
+
+      .star-rating label:hover,
+      .star-rating label:hover ~ label {
+        color: #ffc107;
+      }
+
+      .star-rating input[type="radio"]:checked ~ label {
+        color: #ffc107;
+      }
+    </style>
+
+    <!-- Rating Validation Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector('form[action*="/reviews"]');
+        const ratingInputs = document.querySelectorAll(
+          'input[name="review[rating]"]'
+        );
+        const alertBox = document.getElementById("ratingAlert");
+
+        form.addEventListener("submit", function (e) {
+          const isRatingSelected = Array.from(ratingInputs).some(
+            (input) => input.checked
+          );
+          if (!isRatingSelected) {
+            e.preventDefault();
+            alertBox.classList.remove("d-none");
+            alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else {
+            alertBox.classList.add("d-none");
+          }
+        });
+      });
+    </script>
+  </div>
+</body>
